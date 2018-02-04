@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.1"></a>
+## [1.1.1](https://github.com/adam-26/react-script-tag/compare/v1.1.0...v1.1.1) (2018-02-04)
+
+
+### Bug Fixes
+
+* **docs:** Readme ([4f98f15](https://github.com/adam-26/react-script-tag/commit/4f98f15))
+* **docs:** Readme ([#3](https://github.com/adam-26/react-script-tag/issues/3)) ([ed3131a](https://github.com/adam-26/react-script-tag/commit/ed3131a))
+
+
+
 <a name="1.1.0"></a>
 # 1.1.0 (2018-02-04)
 
