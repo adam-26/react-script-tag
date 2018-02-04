@@ -1,0 +1,95 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    environment:
+      CC_TEST_REPORTER_ID: d4ce77f89a356da0f08b9539a8c2bd2a71f46806b1cb8dbad37bf9d7e6e0b92b
+    docker:
+      - image: node:8.4
+    working_directory: ~/react-script-tag
+    steps:
+      - checkout
+      - run:
+          name: "~/.npmrc"
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: "Checking Versions"
+          command: |
+            node --version
+            npm --version
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: "npm install"
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          command: |
+            mkdir -p ./.build
+            mkdir -p ./.build/lint
+            mkdir -p ./.build/coverage
+            mkdir -p ./.build/test
+            mkdir -p ./coverage
+          when: always
+      - run:
+          name: lint
+          command: npm run ci-lint
+      - run:
+          name: "install code climate"
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: test
+          command: |
+            # Prepare the test reporter
+            ./cc-test-reporter before-build
+
+            # Run the tests
+            npm run ci-jest
+            COVERAGE_EXIT_CODE=$?
+
+            # Copy the coverage file for reporting purposes
+            cp ./.build/coverage/lcov.info ./coverage
+
+            # Prevent errors when re-building on the CI server (reports previously uploaded)
+            set +e
+            ./cc-test-reporter after-build -t lcov --exit-code $COVERAGE_EXIT_CODE
+            REPORTER_EXIT_CODE=$?
+            set -e
+            if [ "$REPORTER_EXIT_CODE" != "0" ] && [ "$REPORTER_EXIT_CODE" != "255" ]; then
+              exit $$REPORTER_EXIT_CODE
+            fi
+      - store_test_results:
+          path: ./.build/test/test-report.xml
+      - store_artifacts:
+          path: ./.build/test
+          prefix: "test"
+      - store_artifacts:
+          path: ./.build/lint
+          prefix: "lint"
+      - store_artifacts:
+          path: ./.build/coverage
+          prefix: "coverage"
+      - deploy:
+          name: Maybe Deploy
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              git config -l
+              git config user.email ci@circleci
+              git config user.name CircleCI
+
+              # Build for release
+              npm run build
+
+              # Tag the release, update package.json version and changelog, commit and push to github.
+              ./node_modules/.bin/standard-version --no-verify -m "chore(release): %s. [skip ci]"
+              git push --follow-tags origin master
+              npm publish
+            fi
