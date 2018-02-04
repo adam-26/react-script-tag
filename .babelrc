@@ -1,0 +1,21 @@
+{
+  "presets": [["es2015", { "loose": true }], "stage-0", "react"],
+  "env": {
+    "production": {
+      "presets": [["es2015", {"loose": true}], "react", "stage-0"],
+      "plugins": [
+        "transform-runtime",
+        ["minify-dead-code-elimination", {
+          "keepFnName": true,
+          "keepFnArgs": true,
+          "keepClassName": true
+        }],
+        ["transform-inline-environment-variables", {
+          "include": [
+            "NODE_ENV"
+          ]
+        }]
+      ]
+    }
+  }
+}
