@@ -16,7 +16,7 @@
  * Works with react dev-tools
  * Supports `onLoad` and `onError` callbacks
 
-If you've found this page, you may want to **consider using [react-html-metadata](github.com/adam-26/react-html-metadata)**. It should simplify your use of metadata in React web applications.
+If you've found this page, you may want to **consider using [react-html-metadata](https://github.com/adam-26/react-html-metadata)**. It should simplify your use of metadata in React web applications.
 
 ### Install
 
